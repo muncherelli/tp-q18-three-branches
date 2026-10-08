@@ -1,8 +1,8 @@
 'use strict'
 const http = require('http')
 
-const BRANCH = 'main'
-const VERSION = 1
+const BRANCH = 'branch-b'
+const VERSION = 3
 
 const KEYS = [
   'DATABASE_URL',
