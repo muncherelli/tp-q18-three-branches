@@ -36,26 +36,25 @@ function clientConfig() {
   }
 
   const ssl = sslConfig()
+  const host = process.env.PGHOST
+  const user = process.env.PGUSER
+  const database = process.env.PGDATABASE
+  if (host && user && database) {
+    return {
+      host,
+      port: process.env.PGPORT ? Number(process.env.PGPORT) : 5432,
+      user,
+      password: process.env.PGPASSWORD,
+      database,
+      ssl,
+    }
+  }
+
   if (process.env.DATABASE_URL) {
     return { connectionString: process.env.DATABASE_URL, ssl }
   }
 
-  const host = process.env.PGHOST
-  const port = process.env.PGPORT
-  const user = process.env.PGUSER
-  const password = process.env.PGPASSWORD
-  const database = process.env.PGDATABASE
-  if (!host || !user || !database) {
-    throw new Error('database connection variables incomplete')
-  }
-  return {
-    host,
-    port: port ? Number(port) : 5432,
-    user,
-    password,
-    database,
-    ssl,
-  }
+  throw new Error('database connection variables incomplete')
 }
 
 async function main() {

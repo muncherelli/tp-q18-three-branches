@@ -20,28 +20,29 @@ function varsPresent(): Record<string, boolean> {
   return out
 }
 
+function sslFromEnv() {
+  const cert = process.env.DATABASE_CA_CERT
+  const file = process.env.DATABASE_CA_FILE
+  if (!cert && !file) return undefined
+  return { ca: cert, rejectUnauthorized: true }
+}
+
 function clientConfig() {
-  const ssl =
-    process.env.DATABASE_CA_CERT || process.env.DATABASE_CA_FILE
-      ? {
-          ca: process.env.DATABASE_CA_CERT,
-          rejectUnauthorized: true,
-        }
-      : undefined
+  const ssl = sslFromEnv()
+  if (process.env.PGHOST && process.env.PGUSER && process.env.PGDATABASE) {
+    return {
+      host: process.env.PGHOST,
+      port: process.env.PGPORT ? Number(process.env.PGPORT) : 5432,
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+      ssl,
+    }
+  }
   if (process.env.DATABASE_URL) {
     return { connectionString: process.env.DATABASE_URL, ssl }
   }
-  if (!process.env.PGHOST || !process.env.PGUSER || !process.env.PGDATABASE) {
-    return null
-  }
-  return {
-    host: process.env.PGHOST,
-    port: process.env.PGPORT ? Number(process.env.PGPORT) : 5432,
-    user: process.env.PGUSER,
-    password: process.env.PGPASSWORD,
-    database: process.env.PGDATABASE,
-    ssl,
-  }
+  return null
 }
 
 export async function GET() {
